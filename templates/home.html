@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rubik:wght@300&display=swap" rel="stylesheet">
+        <meta charset="UTF-8">
+        <style>
+            body {
+                background-color: #005c99;
+            }
+
+            .column {
+                float: left;
+                width: 50%;
+            }
+
+            .small {
+                font-size: 12px;
+            }
+
+            .text {
+                font-family: "Rubik", sans-serif;
+            }
+
+            .title {
+                font-size: 50px;
+                text-align: center;
+                color: #005c99;
+                font-family: "Audiowide", sans-serif;
+            }
+
+            #button {
+                background-color: #005c99;
+                color: white;
+                margin-top: 5px;
+                padding: 10px;
+                width: 100px;
+                border-radius: 5px;
+                border:none;
+            }
+
+            #google {
+                padding: 10px;
+                border: 1px solid #ccc;
+                min-height: 350px;
+                width: 90%;
+                border-radius: 5px;
+                float: right;
+            }
+
+            #pagetext {
+                margin-left: 100px;
+                margin-top: 30px;
+                margin-bottom: 100px;
+                background-color: white;
+                border-radius: 10px;
+                width: 75%;
+                float: left;
+                padding-left: 50px;
+                padding-right: 50px;
+                padding-bottom: 50px;
+            }
+
+            #result {
+                border: 1px solid #ccc;
+                font-family: "Rubik", sans-serif;
+                background-color: #f8f8f8;
+                border-radius: 5px;
+                min-height: 50px;
+                width: 400px;
+                overflow-wrap: break-word;
+                padding: 10px;
+            }
+
+            #user-input {
+                padding: 10px;
+                border-radius: 5px;
+                font-family: "Rubik", sans-serif;
+            }
+
+        </style>
+        <title>QueryGPT</title>
+    </head>
+    <body>
+        <div id="pagetext">
+            <p class="text title">QueryGPT</p>
+            <div class="column">
+                <form id="chat-form">
+                    <label class="text" for="user-input">Query:</label>
+                    <br><br>
+                    <textarea id="user-input" name="user_input" rows="15" cols="55" placeholder="Type your query..."></textarea>
+                    <br>
+                    <input id="button" class="text" type="submit" value="Submit"><br>
+                </form>
+                <br><br>
+                <div id="result"></div>
+            </div>
+            <div class="column">
+                <br>
+                <br>
+                <div id="google">
+                    <p class="text">
+                        Google API goes here
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    <script>
+      window.onload = function () {
+        document
+          .getElementById("chat-form")
+          .addEventListener("submit", function (event) {
+            // Prevent the form from submitting and refreshing the page
+            event.preventDefault();
+
+            let userInput = document.getElementById("user-input").value;
+            let url = `/results?user_input=${encodeURIComponent(userInput)}`;
+
+            fetch(url)
+              .then((response) => response.json())
+              .then((data) => {
+                let content = data.content;
+                let resultDiv = document.getElementById("result");
+                resultDiv.innerHTML = content;
+              })
+              .catch((error) => {
+                console.error("Error fetching GPT-4 response:", error);
+              });
+          });
+      };
+    </script>
+    </body>
+</html>
