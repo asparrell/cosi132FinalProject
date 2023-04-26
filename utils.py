@@ -1,5 +1,11 @@
 import re
 from googlesearch import search
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+MODEL = SentenceTransformer('paraphrase-MiniLM-L12-v2')
 
 
 # given output from ChatGPT in the form of a string, returns 3 lists of strings: sources, descriptions, and DOIs
@@ -44,3 +50,31 @@ def search_sources(gpt_output):
         results = search(source, advanced=True)  # output is a generator of dictionary-like objects
         for result in results:
             print(result)
+
+
+def similarities(google_out: str, openai_out: str) -> dict[str, float]:
+    """
+    :param google_out: google output
+    :param openai_out: openai output (order doesn't really matter)
+    :return: a dict formatted:
+    {tfidf cosine similarity: float, tfidf euclidean distance: float,
+     sBERT cosine similarity: float, sBERT euclidean distance: float}
+    """
+
+    similarities = {}
+    documents = [google_out, openai_out]
+
+    tfidfvectoriser = TfidfVectorizer()
+    tfidfvectoriser.fit(documents)
+    tfidf_vectors = tfidfvectoriser.transform(documents)
+    similarities["tfidf_cosine"] =  cosine_similarity(tfidf_vectors)[0][1]
+    similarities["tfidf_euclidean"] = euclidean_distances(tfidf_vectors)[0][1]
+
+    embeddings = MODEL.encode(documents, convert_to_tensor=True)
+    similarities["bert_cosine"] = cosine_similarity(embeddings)[0][1]
+    similarities["bert_euclidean"] = euclidean_distances(embeddings)[0][1]
+    return similarities
+
+
+
+
