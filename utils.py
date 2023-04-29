@@ -41,15 +41,17 @@ def get_doi(source):
         return ''
 
 
-# given output from ChatGPT in the form of a string, prints the results from Googling the sources
-# the print format is not pretty yet, but we can change it to fit our needs
-# I assume we want to return the results eventually rather than print them
+# Input: output from ChatGPT in the form of a string
+# Output: the results from Googling the sources as a dictionary of generators
+# The keys are the sources, and the values are the top three results for each source
+# For each result, you can access .url, .title, and .description
 def search_sources(gpt_output):
     sources, descriptions, dois = process_gpt_output(gpt_output)
+    search_results = {}
     for source in sources:
-        results = search(source, advanced=True)  # output is a generator of dictionary-like objects
-        for result in results:
-            print(result)
+        results = search(source, advanced=True, num_results=3)  # output is a generator of dictionary-like objects
+        search_results[source] = results
+    return search_results
 
 
 def similarities(google_out: str, openai_out: str) -> dict[str, float]:
@@ -74,7 +76,3 @@ def similarities(google_out: str, openai_out: str) -> dict[str, float]:
     similarities["bert_cosine"] = cosine_similarity(embeddings)[0][1]
     similarities["bert_euclidean"] = euclidean_distances(embeddings)[0][1]
     return similarities
-
-
-
-

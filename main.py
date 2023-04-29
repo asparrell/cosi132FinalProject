@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, jsonify
+from flask_caching import Cache
 import openai
 from openai.error import RateLimitError
 import json
+from utils import search_sources
 
 with open("api.txt") as f:
     key = f.readline()
@@ -17,9 +19,10 @@ config = {
 
 app = Flask(__name__)
 app.config.from_mapping(config)
-
+cache = Cache(app)
 
 messages = [{"role": "system", "content": "You are an information retrieval ai assistant"}]
+
 
 # home page
 @app.route("/")
@@ -43,12 +46,16 @@ def results():
     except RateLimitError:
         content = "The server is experiencing a high volume of requests. Please try again later."
 
+    cache.set("chat_output", content)
+
     return jsonify(content=content)
 
 
 @app.route("/results/search", methods=["POST"])
-def search_results(chat_output):
-    return render_template("search_results.html", chat_output=chat_output)
+def search_results():
+    chat_output = cache.get("chat_output")
+    google_results = search_sources(chat_output)
+    return render_template("search_results.html", chat_output=chat_output, google_results=google_results)
 
 
 if __name__ == "__main__":

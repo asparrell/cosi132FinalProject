@@ -100,8 +100,7 @@
                 <br>
                 <br>
                 <div id="google">
-                    <--This is where I want to access the ChatGPT output. I'd replace "content" with it.-->
-                    <form action="{{ url_for('search_results', chat_output=content) }}" name="search" method="post">
+                    <form action="{{ url_for('search_results') }}" name="search" method="post">
                     <input type="submit" value="Search">
                     </form>
                 </div>
