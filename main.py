@@ -46,6 +46,10 @@ def results():
     return jsonify(content=content)
 
 
+@app.route("/results/search", methods=["POST"])
+def search_results(chat_output):
+    return render_template("search_results.html", chat_output=chat_output)
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
