@@ -96,11 +96,13 @@
                 <div id="search_results">
                     <h3>Results from Googling the sources</h3>
                     <div>
-                        {% for source, results in google_results | dictsort %}
-                            <h4>{{ source|e }}</h4>
-                            {% for result in results %}
-                                <a href="{{ result.url }}">{{ result.title|e }}</a>
-                                <p>{{ result.description|e }}</p>
+                        {% for r, score in google_results %}
+                            {% for source, results in r %}
+                                <h4>{{ source|e }}</h4>
+                                {% for result in results %}
+                                    <a href="{{ result.url }}">{{ result.title|e }}</a> {{ score }}
+                                    <p>{{ result.description|e }}</p>
+                                {% endfor %}
                             {% endfor %}
                         {% endfor %}
                     </div>

@@ -4,6 +4,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.feature_extraction.text import TfidfVectorizer
+from itertools import tee
 
 MODEL = SentenceTransformer('paraphrase-MiniLM-L12-v2')
 
@@ -48,10 +49,30 @@ def get_doi(source):
 def search_sources(gpt_output):
     sources, descriptions, dois = process_gpt_output(gpt_output)
     search_results = {}
+    scores = []
+    print(sources)
     for source in sources:
         results = search(source, advanced=True, num_results=3)  # output is a generator of dictionary-like objects
-        search_results[source] = results
-    return search_results
+        print(results)
+        clones = tee(results, 2)
+
+        x = list(clones[1])
+        print(x)
+        scores.append(search_to_score(source, clones[0]))
+        search_results[source] = list(clones[1])
+
+    return search_results, scores
+
+
+def search_to_score(source, results):
+    total_similarity = 0
+    for i , result in enumerate(results):
+        similarity = similarities(source, result.description)
+        bert_cos = similarity["bert_cosine"]
+        total_similarity += bert_cos
+    total_similarity /= i
+
+    yield total_similarity
 
 
 def similarities(google_out: str, openai_out: str) -> dict[str, float]:

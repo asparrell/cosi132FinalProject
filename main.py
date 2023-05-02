@@ -54,10 +54,14 @@ def results():
 @app.route("/results/search", methods=["POST"])
 def search_results():
     chat_output = cache.get("chat_output")
-    google_results = search_sources(chat_output)
-    return render_template("search_results.html", chat_output=chat_output, google_results=google_results)
+    print(chat_output)
+    google_results, scores = search_sources(chat_output)
+    print(google_results.items())
+    return render_template("search_results.html", chat_output=chat_output,
+                           google_results=zip(google_results.items(), scores))
 
 
 if __name__ == "__main__":
+    # app.jinja_env.globals.update(zip=zip)
     app.run(debug=True, port=5000)
 
