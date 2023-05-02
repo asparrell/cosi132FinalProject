@@ -98,9 +98,10 @@
                     <div>
                         {% for r, score in google_results %}
                             {% with source = r.0, results = r.1 %}
-                                <h4>{{ source|e }}</h4>
+                                <h4 style="display: inline;">{{ source|e }}</h4> Average Similarity Score: {{score}}
+                                <br>
                                 {% for result in results %}
-                                    <a href="{{ result.url }}">{{ result.title|e }}</a> {{ score }}
+                                    <a href="{{ result.url }}">{{ result.title|e }}</a>
                                     <p>{{ result.description|e }}</p>
                                 {% endfor %}
                             {% endwith %}

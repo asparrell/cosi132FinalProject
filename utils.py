@@ -51,6 +51,7 @@ def search_sources(gpt_output):
     search_results = {}
     scores = []
     print(sources)
+
     for source in sources:
         results = search(source, advanced=True, num_results=3)  # output is a generator of dictionary-like objects
         print(results)
@@ -72,7 +73,7 @@ def search_to_score(source, results):
         total_similarity += bert_cos
     total_similarity /= i
 
-    yield total_similarity
+    return total_similarity
 
 
 def similarities(google_out: str, openai_out: str) -> dict[str, float]:
