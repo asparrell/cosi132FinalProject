@@ -55,9 +55,8 @@ def search_sources(gpt_output):
         results = search(source, advanced=True, num_results=3)  # output is a generator of dictionary-like objects
         clones = tee(results, 2)
 
-        scores.append(search_to_score(source, clones[0]))
+        scores.append(search_to_score(gpt_output, clones[0]))
         search_results[source] = list(clones[1])
-
     return search_results, scores
 
 
