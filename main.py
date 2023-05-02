@@ -54,9 +54,7 @@ def results():
 @app.route("/results/search", methods=["POST"])
 def search_results():
     chat_output = cache.get("chat_output")
-    print(chat_output)
     google_results, scores = search_sources(chat_output)
-    print(google_results.items())
     return render_template("search_results.html", chat_output=chat_output,
                            google_results=zip(google_results.items(), scores))
 
