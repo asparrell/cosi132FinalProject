@@ -59,7 +59,7 @@ def search_sources(gpt_output):
         x = list(clones[1])
         print(x)
         scores.append(search_to_score(source, clones[0]))
-        search_results[source] = list(clones[1])
+        search_results[source] = x
 
     return search_results, scores
 

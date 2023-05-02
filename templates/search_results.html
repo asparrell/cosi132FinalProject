@@ -97,13 +97,13 @@
                     <h3>Results from Googling the sources</h3>
                     <div>
                         {% for r, score in google_results %}
-                            {% for source, results in r %}
+                            {% with source = r.0, results = r.1 %}
                                 <h4>{{ source|e }}</h4>
                                 {% for result in results %}
                                     <a href="{{ result.url }}">{{ result.title|e }}</a> {{ score }}
                                     <p>{{ result.description|e }}</p>
                                 {% endfor %}
-                            {% endfor %}
+                            {% endwith %}
                         {% endfor %}
                     </div>
                 </div>
