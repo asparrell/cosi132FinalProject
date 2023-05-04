@@ -34,18 +34,19 @@
                 background-color: #005c99;
                 color: white;
                 margin-top: 5px;
-                padding: 10px;
-                width: 100px;
+                margin-left: 5px;
+                padding: 8px;
                 border-radius: 5px;
                 border:none;
             }
 
+            #chat-form {
+                text-align: center;
+            }
+
             #google {
-                padding: 10px;
-                border: 1px solid #ccc;
-                min-height: 350px;
                 width: 90%;
-                border-radius: 5px;
+                background-color: white;
                 float: right;
             }
 
@@ -62,12 +63,12 @@
                 padding-bottom: 50px;
             }
 
-            #result {
+            .results {
                 border: 1px solid #ccc;
                 font-family: "Rubik", sans-serif;
                 background-color: #f8f8f8;
                 border-radius: 5px;
-                min-height: 50px;
+                min-height: 350px;
                 width: 400px;
                 overflow-wrap: break-word;
                 padding: 10px;
@@ -85,25 +86,19 @@
     <body>
         <div id="pagetext">
             <p class="text title">QueryGPT</p>
+            <form id="chat-form">
+                <label class="text" for="user-input"></label>
+                <input type="text" size="50px" id="user-input" name="user_input" placeholder="Type your query...">
+                <input id="button" class="text" type="submit" value="Search"><br>
+            </form>
             <div class="column">
-                <form id="chat-form">
-                    <label class="text" for="user-input">Query:</label>
-                    <br><br>
-                    <textarea id="user-input" name="user_input" rows="15" cols="55" placeholder="Type your query..."></textarea>
-                    <br>
-                    <input id="button" class="text" type="submit" value="Submit"><br>
-                </form>
                 <br><br>
-                <div id="result"></div>
+                <div id="result" class="results text"></div>
             </div>
             <div class="column">
                 <br>
                 <br>
-                <div id="google">
-                    <form action="{{ url_for('search_results') }}" name="search" method="post">
-                    <input type="submit" value="Search">
-                    </form>
-                </div>
+                <div id="google" class="results"></div>
             </div>
         </div>
 
@@ -123,7 +118,25 @@
               .then((data) => {
                 let content = data.content;
                 let resultDiv = document.getElementById("result");
-                resultDiv.innerHTML = content;
+                resultDiv.insertAdjacentHTML("afterbegin", `<h3 class="text">Chat GPT says:</h3><p class="text">` + content + `</p>`);
+                {#resultDiv.innerHTML = content;#}
+                let sourcesDiv = document.getElementById("google");
+                let sources = JSON.parse(data.sources);
+                let str = `<h3 class="text">Results from Googling the sources:</h3>`;
+                  {# for source in sources #}
+                for (let i = 0; i < sources.length; i++) {
+                    let source = sources[i]["source"];
+                    let results = sources[i]["results"];
+                    str = str + `<h4 class="text">` + source + `</h4>`;
+                    {#for result in results#}
+                    for (let j = 0; j < results.length; j++) {
+                        str = str + `<a href="` + results[j]["url"] + `">` + results[j]["title"] + `</a><p>`;
+                        str = str + results[j]["description"] + `</p>`;
+                        str = str + `<p class="small text"> Average Similarity Score: ` + results[j]["score"] + `</p><br>`;
+                    }
+                }
+
+                sourcesDiv.insertAdjacentHTML("afterbegin", str);
               })
               .catch((error) => {
                 console.error("Error fetching GPT-4 response:", error);
