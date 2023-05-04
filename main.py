@@ -59,7 +59,6 @@ def results():
 
     # uncomment the below if the google API is working:
     google_results = search_sources(sources)
-
     # sample output for dummy testing search_sources rendering
     # sample = [{"source": "'Natural Language Processing: RNNs are commonly used in natural language processing (NLP) applications, such as language translation, sentiment analysis, and text generation. In language translation, RNNs can be used to create a neural machine translation model that understands the structure and grammar of both languages being translated. In sentiment analysis, RNNs can be used to predict the sentiment of a piece of text, such as whether it is positive, negative, or neutral. In text generation, RNNs can be used to generate new text based on a trained model, such as generating a new sentence that continues an existing text.'",
     #            "results": [

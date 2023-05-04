@@ -48,11 +48,34 @@ def get_doi(source):
 # Output: the results from Googling the sources as a dictionary of generators
 # The keys are the sources, and the values are the top three results for each source
 # For each result, you can access .url, .title, and .description
-def search_sources(gpt_output):
-    sources, descriptions, dois = process_gpt_output(gpt_output)
-    # search_results = {}
-    # scores = []
+def search_sources(gpt_output_original, gpt_output_sources):
+    """
+    :param gpt_output_original: original gpt output
+    :param gpt_output_sources:  source gpt output
+    :return: json of all google results
+    """
+    # processes both original and source gpt output
+    original_sources, original_descriptions, original_dois = process_gpt_output(gpt_output_original)
+    source_sources, source_descriptions, source_dois = process_gpt_output(gpt_output_sources)
 
+    # gets json of google results for both source types and concatenates them
+    original_json = sources_to_json(original_sources, gpt_output_original, "original")
+    sources_json = sources_to_json(source_sources, gpt_output_original, "sources")
+    original_json.extend(sources_json)
+
+    # list to json
+    out = str(json.dumps(original_json))
+    return out
+
+
+def sources_to_json(sources, gpt_output, source_type):
+    """
+    gets json formatted list of google results
+    :param sources: source output of process_gpt_output
+    :param gpt_output: the original chatgpt output
+    :param source_type: original or sources
+    :return: a list to be converted to json of google results and scores
+    """
     out = []
     for source in sources:
         search_result = {}
@@ -62,26 +85,28 @@ def search_sources(gpt_output):
 
         results = []
         total_score = 0
+        num_scores = 0
         for result in google_results:
-            # This is where I get the error, not when search() is called.
             sleep(5)
             hit = {"url": result.url, "title": result.title, "description": result.description}
-            # I changed this line from comparing source and description to comparing gpt_output and description
             score = similarities(gpt_output, result.description)["bert_cosine"]
             total_score += score
+            num_scores += 1
             hit["score"] = str(score)
             results.append(hit)
 
         search_result["results"] = results
-        search_result["average_score"] = str(total_score/len(google_results))
+        search_result["average_score"] = str(total_score / num_scores)
+        search_result["source_type"] = source_type
+        num_scores = 0
         out.append(search_result)
-    out = str(json.dumps(out))
+
     return out
 
 
 def search_to_score(source, results):
     total_similarity = 0
-    for i , result in enumerate(results):
+    for i, result in enumerate(results):
         similarity = similarities(source, result.description)
         bert_cos = similarity["bert_cosine"]
         total_similarity += bert_cos
@@ -102,12 +127,14 @@ def similarities(google_out, openai_out):
     similarities = {}
     documents = [google_out, openai_out]
 
+    # tf-idf scores
     tfidfvectoriser = TfidfVectorizer()
     tfidfvectoriser.fit(documents)
     tfidf_vectors = tfidfvectoriser.transform(documents)
-    similarities["tfidf_cosine"] =  cosine_similarity(tfidf_vectors)[0][1]
+    similarities["tfidf_cosine"] = cosine_similarity(tfidf_vectors)[0][1]
     similarities["tfidf_euclidean"] = euclidean_distances(tfidf_vectors)[0][1]
 
+    # bert scores
     embeddings = MODEL.encode(documents, convert_to_tensor=True)
     similarities["bert_cosine"] = cosine_similarity(embeddings)[0][1]
     similarities["bert_euclidean"] = euclidean_distances(embeddings)[0][1]
