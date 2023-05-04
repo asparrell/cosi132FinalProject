@@ -1,0 +1,6 @@
+googlesearch-python
+openai
+sentence-transformers
+scikit-learn
+Flask
+Flask-Caching
