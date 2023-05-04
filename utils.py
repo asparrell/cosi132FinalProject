@@ -5,6 +5,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.feature_extraction.text import TfidfVectorizer
 from itertools import tee
+import json
 
 MODEL = SentenceTransformer('paraphrase-MiniLM-L12-v2')
 
@@ -48,16 +49,32 @@ def get_doi(source):
 # For each result, you can access .url, .title, and .description
 def search_sources(gpt_output):
     sources, descriptions, dois = process_gpt_output(gpt_output)
-    search_results = {}
-    scores = []
+    # search_results = {}
+    # scores = []
 
+    out = []
     for source in sources:
-        results = search(source, advanced=True, num_results=3)  # output is a generator of dictionary-like objects
-        clones = tee(results, 2)
+        search_result = {}
+        google_results = list(search(source, advanced=True, num_results=3))  # output is a generator of dictionary-like objects
+        search_result["source"] = source
 
-        scores.append(search_to_score(gpt_output, clones[0]))
-        search_results[source] = list(clones[1])
-    return search_results, scores
+        results = []
+        hit = {}
+        total_score = 0
+        for result in google_results:
+            hit["url"] = result.url
+            hit["title"] = result.title
+            hit["description"] = result.description
+            score = similarities(source, result.description)["bert_cosine"]
+            total_score += score
+            hit["score"] = str(score)
+            results.append(hit)
+
+        search_result["results"] = results
+        search_result["average_score"] = str(total_score/len(google_results))
+        out.append(search_result)
+    out = str(json.dumps(out))
+    return out
 
 
 def search_to_score(source, results):
@@ -71,7 +88,7 @@ def search_to_score(source, results):
     return total_similarity
 
 
-def similarities(google_out: str, openai_out: str) -> dict[str, float]:
+def similarities(google_out, openai_out):
     """
     :param google_out: google output
     :param openai_out: openai output (order doesn't really matter)

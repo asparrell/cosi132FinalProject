@@ -1,3 +1,6 @@
 api.txt
 .idea/
 __pycache__/
+.google-cookie
+scholar_queries.json
+

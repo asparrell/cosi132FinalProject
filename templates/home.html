@@ -127,12 +127,14 @@
                 for (let i = 0; i < sources.length; i++) {
                     let source = sources[i]["source"];
                     let results = sources[i]["results"];
+                    let average_score = sources[i]["average_score"];
                     str = str + `<h4 class="text">` + source + `</h4>`;
+                    str = str +  `<h4 class="text"> Average Similarity Score: `+ average_score + `</h4>`;
                     {#for result in results#}
                     for (let j = 0; j < results.length; j++) {
                         str = str + `<a href="` + results[j]["url"] + `">` + results[j]["title"] + `</a><p>`;
                         str = str + results[j]["description"] + `</p>`;
-                        str = str + `<p class="small text"> Average Similarity Score: ` + results[j]["score"] + `</p><br>`;
+                        str = str + `<p class="small text"> Similarity Score: ` + results[j]["score"] + `</p><br>`;
                     }
                 }
 
