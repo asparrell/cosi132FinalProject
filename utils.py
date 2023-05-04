@@ -6,6 +6,7 @@ from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.feature_extraction.text import TfidfVectorizer
 from itertools import tee
 import json
+from time import sleep
 
 MODEL = SentenceTransformer('paraphrase-MiniLM-L12-v2')
 
@@ -56,12 +57,14 @@ def search_sources(gpt_output):
     for source in sources:
         search_result = {}
         # output of search() is a generator of dictionary-like objects
-        google_results = search(source, advanced=True, num_results=3, sleep_interval=5)
+        google_results = search(source, advanced=True, num_results=3, sleep_interval=10)
         search_result["source"] = source
 
         results = []
         total_score = 0
         for result in google_results:
+            # This is where I get the error, not when search() is called.
+            sleep(5)
             hit = {"url": result.url, "title": result.title, "description": result.description}
             # I changed this line from comparing source and description to comparing gpt_output and description
             score = similarities(gpt_output, result.description)["bert_cosine"]
@@ -109,3 +112,16 @@ def similarities(google_out, openai_out):
     similarities["bert_cosine"] = cosine_similarity(embeddings)[0][1]
     similarities["bert_euclidean"] = euclidean_distances(embeddings)[0][1]
     return similarities
+
+
+# for debugging purposes
+'''
+if __name__ == '__main__':
+    gpt_output = "Sure, here's a list of sources that can help you learn how to use LaTeX:\n1. The LaTeX Project - " \
+                 "https://www.latex-project.org/\nThe LaTeX Project is the official website of LaTeX. It provides a " \
+                 "comprehensive user guide, tutorials, and documentation that cover various topics related to " \
+                 "LaTeX.\n2. Overleaf - https://www.overleaf.com/learn\nOverleaf is a cloud-based LaTeX editor that " \
+                 "provides various templates and tutorials for beginners. It also offers collaboration features and a " \
+                 "rich text editor to help you get started with LaTeX quickly. "
+    search_sources(gpt_output)
+'''
