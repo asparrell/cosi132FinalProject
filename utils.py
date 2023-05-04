@@ -48,7 +48,7 @@ def get_doi(source):
 # Output: the results from Googling the sources as a dictionary of generators
 # The keys are the sources, and the values are the top three results for each source
 # For each result, you can access .url, .title, and .description
-def search_sources(sources_gpt_output, original_gpt_output, original_query):
+def search_sources(original_gpt_output, sources_gpt_output, original_query):
     """
         json format:
     [
