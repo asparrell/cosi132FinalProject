@@ -55,17 +55,16 @@ def search_sources(gpt_output):
     out = []
     for source in sources:
         search_result = {}
-        google_results = list(search(source, advanced=True, num_results=3))  # output is a generator of dictionary-like objects
+        # output of search() is a generator of dictionary-like objects
+        google_results = search(source, advanced=True, num_results=3, sleep_interval=5)
         search_result["source"] = source
 
         results = []
-        hit = {}
         total_score = 0
         for result in google_results:
-            hit["url"] = result.url
-            hit["title"] = result.title
-            hit["description"] = result.description
-            score = similarities(source, result.description)["bert_cosine"]
+            hit = {"url": result.url, "title": result.title, "description": result.description}
+            # I changed this line from comparing source and description to comparing gpt_output and description
+            score = similarities(gpt_output, result.description)["bert_cosine"]
             total_score += score
             hit["score"] = str(score)
             results.append(hit)
