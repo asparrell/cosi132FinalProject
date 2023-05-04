@@ -48,7 +48,7 @@ def get_doi(source):
 # Output: the results from Googling the sources as a dictionary of generators
 # The keys are the sources, and the values are the top three results for each source
 # For each result, you can access .url, .title, and .description
-def search_sources(gpt_output, original_query):
+def search_sources(sources_gpt_output, original_gpt_output, original_query):
     """
     json format:
     [
@@ -67,7 +67,7 @@ def search_sources(gpt_output, original_query):
     :return: json of all google results
     """
     # processes gpt output
-    sources, descriptions, dois = process_gpt_output(gpt_output)
+    sources, descriptions, dois = process_gpt_output(sources_gpt_output)
 
     # iterate through sources and get google results
     out = []
@@ -78,7 +78,7 @@ def search_sources(gpt_output, original_query):
         search_result["source"] = source
 
         #gets json of google results
-        results, average_score = results_to_json(google_results, gpt_output)
+        results, average_score = results_to_json(google_results, original_gpt_output)
 
         search_result["results"] = results
         search_result["average_score"] = str(average_score)
@@ -88,7 +88,7 @@ def search_sources(gpt_output, original_query):
     # combine with google results of original query
     query_json = {}
     query_results = search(original_query, advanced=True, num_results=3, sleep_interval=10)
-    results, average_score = results_to_json(query_results, gpt_output)
+    results, average_score = results_to_json(query_results, original_gpt_output)
     query_json["source"] = original_query
     query_json["results"] = results
     query_json["average_score"] = str(average_score)
