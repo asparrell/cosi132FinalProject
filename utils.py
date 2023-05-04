@@ -50,7 +50,7 @@ def get_doi(source):
 # For each result, you can access .url, .title, and .description
 def search_sources(sources_gpt_output, original_gpt_output, original_query):
     """
-    json format:
+        json format:
     [
         {
         "source": <source>,
@@ -59,12 +59,13 @@ def search_sources(sources_gpt_output, original_gpt_output, original_query):
             {"url" = <url>, "description" = <description>, "title" = <title>, score = <score>}
             ]
         "average_score": <average score>
-        "source": <original query or gpt source>
+        "source_type": <original query or gpt source>
         }
     ]
-    :param gpt_output_original: original gpt output
-    :param gpt_output_sources:  source gpt output
-    :return: json of all google results
+    :param sources_gpt_output: gpt output of sources request
+    :param original_gpt_output: original gpt output
+    :param original_query: user input query
+    :return: json of google results
     """
     # processes gpt output
     sources, descriptions, dois = process_gpt_output(sources_gpt_output)
@@ -77,7 +78,7 @@ def search_sources(sources_gpt_output, original_gpt_output, original_query):
         google_results = search(source, advanced=True, num_results=3, sleep_interval=10)
         search_result["source"] = source
 
-        #gets json of google results
+        # gets json of google results
         results, average_score = results_to_json(google_results, original_gpt_output)
 
         search_result["results"] = results
@@ -103,7 +104,7 @@ def search_sources(sources_gpt_output, original_gpt_output, original_query):
 def results_to_json(google_results, gpt_output):
     """
     :param google_results: google results of query
-    :param gpt_output: original chatgpt otput
+    :param gpt_output: original chatgpt output
     :return: json format list of hits
     """
     results = []
@@ -157,7 +158,6 @@ def similarities(google_out, openai_out):
     similarities["bert_euclidean"] = euclidean_distances(embeddings)[0][1]
     return similarities
 
-
 # for debugging purposes
 # if __name__ == '__main__':
 #     gpt_output = "Sure, here's a list of sources that can help you learn how to use LaTeX:\n1. The LaTeX Project - " \
@@ -168,5 +168,4 @@ def similarities(google_out, openai_out):
 #                  "rich text editor to help you get started with LaTeX quickly. "
 #     original_query = "how do I use LaTeX?"
 #
-#     print(search_sources(gpt_output, original_query))
-
+#     print(search_sources(gpt_output, gpt_output, original_query))
