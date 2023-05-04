@@ -48,34 +48,28 @@ def get_doi(source):
 # Output: the results from Googling the sources as a dictionary of generators
 # The keys are the sources, and the values are the top three results for each source
 # For each result, you can access .url, .title, and .description
-def search_sources(gpt_output_original, gpt_output_sources):
+def search_sources(gpt_output, original_query):
     """
+    json format:
+    [
+        {
+        "source": <source>,
+        "results":
+            [
+            {"url" = <url>, "description" = <description>, "title" = <title>, score = <score>}
+            ]
+        "average_score": <average score>
+        "source": <original query or gpt source>
+        }
+    ]
     :param gpt_output_original: original gpt output
     :param gpt_output_sources:  source gpt output
     :return: json of all google results
     """
-    # processes both original and source gpt output
-    original_sources, original_descriptions, original_dois = process_gpt_output(gpt_output_original)
-    source_sources, source_descriptions, source_dois = process_gpt_output(gpt_output_sources)
+    # processes gpt output
+    sources, descriptions, dois = process_gpt_output(gpt_output)
 
-    # gets json of google results for both source types and concatenates them
-    original_json = sources_to_json(original_sources, gpt_output_original, "original")
-    sources_json = sources_to_json(source_sources, gpt_output_original, "sources")
-    original_json.extend(sources_json)
-
-    # list to json
-    out = str(json.dumps(original_json))
-    return out
-
-
-def sources_to_json(sources, gpt_output, source_type):
-    """
-    gets json formatted list of google results
-    :param sources: source output of process_gpt_output
-    :param gpt_output: the original chatgpt output
-    :param source_type: original or sources
-    :return: a list to be converted to json of google results and scores
-    """
+    # iterate through sources and get google results
     out = []
     for source in sources:
         search_result = {}
@@ -83,36 +77,60 @@ def sources_to_json(sources, gpt_output, source_type):
         google_results = search(source, advanced=True, num_results=3, sleep_interval=10)
         search_result["source"] = source
 
-        results = []
-        total_score = 0
-        num_scores = 0
-        for result in google_results:
-            sleep(5)
-            hit = {"url": result.url, "title": result.title, "description": result.description}
-            score = similarities(gpt_output, result.description)["bert_cosine"]
-            total_score += score
-            num_scores += 1
-            hit["score"] = str(score)
-            results.append(hit)
+        #gets json of google results
+        results, average_score = results_to_json(google_results, gpt_output)
 
         search_result["results"] = results
-        search_result["average_score"] = str(total_score / num_scores)
-        search_result["source_type"] = source_type
-        num_scores = 0
+        search_result["average_score"] = str(average_score)
+        search_result["source_type"] = "gpt source"
         out.append(search_result)
 
+    # combine with google results of original query
+    query_json = {}
+    query_results = search(original_query, advanced=True, num_results=3, sleep_interval=10)
+    results, average_score = results_to_json(query_results, gpt_output)
+    query_json["source"] = original_query
+    query_json["results"] = results
+    query_json["average_score"] = str(average_score)
+    query_json["source_type"] = "original query"
+    out.append(query_json)
+
+    # list to json
+    out = str(json.dumps(out))
     return out
 
 
-def search_to_score(source, results):
-    total_similarity = 0
-    for i, result in enumerate(results):
-        similarity = similarities(source, result.description)
-        bert_cos = similarity["bert_cosine"]
-        total_similarity += bert_cos
-    total_similarity /= i
+def results_to_json(google_results, gpt_output):
+    """
+    :param google_results: google results of query
+    :param gpt_output: original chatgpt otput
+    :return: json format list of hits
+    """
+    results = []
+    average_score = 0
+    num_scores = 0
+    for result in google_results:
+        sleep(5)
+        hit = {"url": result.url, "title": result.title, "description": result.description}
+        score = similarities(gpt_output, result.description)["bert_cosine"]
+        average_score += score
+        num_scores += 1
+        hit["score"] = str(score)
+        results.append(hit)
+    average_score /= num_scores
 
-    return total_similarity
+    return results, average_score
+
+
+# def search_to_score(source, results):
+#     total_similarity = 0
+#     for i, result in enumerate(results):
+#         similarity = similarities(source, result.description)
+#         bert_cos = similarity["bert_cosine"]
+#         total_similarity += bert_cos
+#     total_similarity /= i
+#
+#     return total_similarity
 
 
 def similarities(google_out, openai_out):
@@ -123,7 +141,6 @@ def similarities(google_out, openai_out):
     {tfidf cosine similarity: float, tfidf euclidean distance: float,
      sBERT cosine similarity: float, sBERT euclidean distance: float}
     """
-
     similarities = {}
     documents = [google_out, openai_out]
 
@@ -142,13 +159,14 @@ def similarities(google_out, openai_out):
 
 
 # for debugging purposes
-'''
-if __name__ == '__main__':
-    gpt_output = "Sure, here's a list of sources that can help you learn how to use LaTeX:\n1. The LaTeX Project - " \
-                 "https://www.latex-project.org/\nThe LaTeX Project is the official website of LaTeX. It provides a " \
-                 "comprehensive user guide, tutorials, and documentation that cover various topics related to " \
-                 "LaTeX.\n2. Overleaf - https://www.overleaf.com/learn\nOverleaf is a cloud-based LaTeX editor that " \
-                 "provides various templates and tutorials for beginners. It also offers collaboration features and a " \
-                 "rich text editor to help you get started with LaTeX quickly. "
-    search_sources(gpt_output)
-'''
+# if __name__ == '__main__':
+#     gpt_output = "Sure, here's a list of sources that can help you learn how to use LaTeX:\n1. The LaTeX Project - " \
+#                  "https://www.latex-project.org/\nThe LaTeX Project is the official website of LaTeX. It provides a " \
+#                  "comprehensive user guide, tutorials, and documentation that cover various topics related to " \
+#                  "LaTeX.\n2. Overleaf - https://www.overleaf.com/learn\nOverleaf is a cloud-based LaTeX editor that " \
+#                  "provides various templates and tutorials for beginners. It also offers collaboration features and a " \
+#                  "rich text editor to help you get started with LaTeX quickly. "
+#     original_query = "how do I use LaTeX?"
+#
+#     print(search_sources(gpt_output, original_query))
+
