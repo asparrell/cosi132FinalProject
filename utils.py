@@ -88,7 +88,7 @@ def search_sources(original_gpt_output, sources_gpt_output, original_query):
     return out
 
 
-def results_to_json(google_results, gpt_output, type, master_list):
+def results_to_json(google_results, gpt_output, source_type, master_list):
     """
     returns list with new results added
     :param google_results: google results of query
@@ -102,7 +102,7 @@ def results_to_json(google_results, gpt_output, type, master_list):
         hit = {"url": result.url, "title": result.title, "description": result.description}
         score = similarities(gpt_output, result.description)["bert_cosine"]
         hit["score"] = str(score)
-        hit["source_type"] = type
+        hit["source_type"] = source_type
         master_list.append(hit)
 
     return master_list
