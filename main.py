@@ -50,9 +50,9 @@ def results():
     print(sources)
 
     # uncomment the below if the google API is working:
-    # google_results = search_sources(content, sources, user_input)
+    google_results = search_sources(content, sources, user_input)
 
-    # print(google_results)
+    print(google_results)
     # sample output for dummy testing search_sources rendering
     sample = [
                       {"url": "https://towardsdatascience.com/language-translation-with-rnns-d84d43b40571", "title": "Language Translation with RNNs. Build a recurrent neural ...", "description": "In this project, I build a deep neural network that functions as part of a machine translation pipeline. The pipeline accepts English text as input and returns ...", "score": "0.5912", "source_type": "original google results"},
@@ -62,9 +62,9 @@ def results():
                       {"url": "https://www.qblocks.cloud/blog/natural-language-processing-machine-translation", "title": "Natural language processing (NLP) and its use in machine ...", "description": "Natural Language Processing combines computational linguistics, rule-based modeling of human language with some statistics, machine learning, and deep learning ...", "score": "0.5188", "source_type": "chatgpt sources"}
             ]
     s = str(json.dumps(sample))
-    print(s)
+    # print(s)
     # if google api is working, replace sources with google_results (uncomment above)
-    return jsonify(content=content, sources=s)
+    return jsonify(content=content, sources=google_results)
 
 
 # @app.route("/results/search", methods=["POST"])

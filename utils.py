@@ -74,11 +74,11 @@ def search_sources(original_gpt_output, sources_gpt_output, original_query):
         # output of search() is a generator of dictionary-like objects
         google_results = search(source, advanced=True, num_results=3, sleep_interval=10)
         # gets json of google results
-        out = results_to_json(google_results, original_gpt_output, "gpt source", out)
+        out = results_to_json(google_results, original_gpt_output, "ChatGPT generated source", out)
 
     # combine with google results of original query
     query_results = search(original_query, advanced=True, num_results=3, sleep_interval=10)
-    out = results_to_json(query_results, original_gpt_output, "original query", out)
+    out = results_to_json(query_results, original_gpt_output, "Original Google query result", out)
 
     # sort by score
     out = sorted(out, key=lambda d: d['score'], reverse=True)
