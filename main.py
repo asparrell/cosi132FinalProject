@@ -1,7 +1,4 @@
-import json
-
 from flask import Flask, render_template, request, jsonify
-from flask_caching import Cache
 import openai
 from openai.error import RateLimitError
 from utils import search_sources
@@ -11,17 +8,8 @@ with open("api.txt") as f:
 
 openai.api_key = key
 
-# We can probably get rid of the caching stuff but I don't remember which parts of this are needed for Flask itself
-# set up the cache
-config = {
-    "DEBUG": True,  # some Flask specific configs
-    "CACHE_TYPE": "SimpleCache",  # Flask-Caching related configs
-    "CACHE_DEFAULT_TIMEOUT": 300
-}
 
 app = Flask(__name__)
-app.config.from_mapping(config)
-cache = Cache(app)
 
 # home page
 @app.route("/")
@@ -57,8 +45,13 @@ def results():
     except RateLimitError:
         sources = "The server is experiencing a high volume of requests. Please try again later."
 
+    print(content)
+    print(sources)
+
     # uncomment the below if the google API is working:
     google_results = search_sources(content, sources, user_input)
+
+    print(google_results)
     # sample output for dummy testing search_sources rendering
     # sample = [{"source": "'Natural Language Processing: RNNs are commonly used in natural language processing (NLP) applications, such as language translation, sentiment analysis, and text generation. In language translation, RNNs can be used to create a neural machine translation model that understands the structure and grammar of both languages being translated. In sentiment analysis, RNNs can be used to predict the sentiment of a piece of text, such as whether it is positive, negative, or neutral. In text generation, RNNs can be used to generate new text based on a trained model, such as generating a new sentence that continues an existing text.'",
     #            "results": [

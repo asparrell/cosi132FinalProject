@@ -15,6 +15,17 @@
                 width: 50%;
             }
 
+            .results {
+                border: 1px solid #ccc;
+                font-family: "Rubik", sans-serif;
+                background-color: #f8f8f8;
+                border-radius: 5px;
+                min-height: 350px;
+                width: 400px;
+                overflow-wrap: break-word;
+                padding: 10px;
+            }
+
             .small {
                 font-size: 12px;
             }
@@ -63,15 +74,10 @@
                 padding-bottom: 50px;
             }
 
-            .results {
-                border: 1px solid #ccc;
-                font-family: "Rubik", sans-serif;
-                background-color: #f8f8f8;
-                border-radius: 5px;
-                min-height: 350px;
-                width: 400px;
-                overflow-wrap: break-word;
-                padding: 10px;
+            #subtitle {
+                color: #005c99;
+                text-align: center;
+                font-size: 14px;
             }
 
             #user-input {
@@ -86,6 +92,7 @@
     <body>
         <div id="pagetext">
             <p class="text title">QueryGPT</p>
+            <p id="subtitle" class="text">A simple application to access ChatGPT with references from Google to verify what ChatGPT says.</p>
             <form id="chat-form">
                 <label class="text" for="user-input"></label>
                 <input type="text" size="50px" id="user-input" name="user_input" placeholder="Type your query...">
@@ -118,26 +125,29 @@
               .then((data) => {
                 let content = data.content;
                 let resultDiv = document.getElementById("result");
-                resultDiv.insertAdjacentHTML("afterbegin", `<h3 class="text">Chat GPT says:</h3><p class="text">` + content + `</p>`);
-                {#resultDiv.innerHTML = content;#}
+                // clear previous content
+                resultDiv.innerHTML = "";
+                resultDiv.insertAdjacentHTML("afterbegin", `<h3 class="text">ChatGPT says:</h3><p class="text">` + content + `</p>`);
                 let sourcesDiv = document.getElementById("google");
                 let sources = JSON.parse(data.sources);
-                let str = `<h3 class="text">Results from Googling the sources:</h3>`;
-                  {# for source in sources #}
+                let str = `<h3 class="text">Sources:</h3>`;
+                  // for source in sources
                 for (let i = 0; i < sources.length; i++) {
                     let source = sources[i]["source"];
                     let results = sources[i]["results"];
                     let average_score = sources[i]["average_score"];
                     str = str + `<h4 class="text">` + source + `</h4>`;
                     str = str +  `<h4 class="text"> Average Similarity Score: `+ average_score + `</h4>`;
-                    {#for result in results#}
+                    // for result in results
                     for (let j = 0; j < results.length; j++) {
+                        str = str + `<p class="text"><b>Source: ` + results[j]["source_type"] + `</b></p>`;
                         str = str + `<a href="` + results[j]["url"] + `">` + results[j]["title"] + `</a><p>`;
                         str = str + results[j]["description"] + `</p>`;
                         str = str + `<p class="small text"> Similarity Score: ` + results[j]["score"] + `</p><br>`;
                     }
                 }
-
+                // clear previous content
+                sourcesDiv.innerHTML = "";
                 sourcesDiv.insertAdjacentHTML("afterbegin", str);
               })
               .catch((error) => {
