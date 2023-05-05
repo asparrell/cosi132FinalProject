@@ -53,12 +53,10 @@ def search_sources(original_gpt_output, sources_gpt_output, original_query):
         json format:
     [
         {
-        "source": <source>,
-        "results":
-            [
-            {"url" = <url>, "description" = <description>, "title" = <title>, score = <score>}
-            ]
-        "average_score": <average score>
+        "url" = <url>
+        "description" = <description>
+        "title" = <title>
+        "score" = <score>
         "source_type": <original query or gpt source>
         }
     ]
@@ -73,54 +71,41 @@ def search_sources(original_gpt_output, sources_gpt_output, original_query):
     # iterate through sources and get google results
     out = []
     for source in sources:
-        search_result = {}
         # output of search() is a generator of dictionary-like objects
         google_results = search(source, advanced=True, num_results=3, sleep_interval=10)
-        search_result["source"] = source
-
         # gets json of google results
-        results, average_score = results_to_json(google_results, original_gpt_output)
-
-        search_result["results"] = results
-        search_result["average_score"] = str(average_score)
-        search_result["source_type"] = "gpt source"
-        out.append(search_result)
+        out = results_to_json(google_results, original_gpt_output, "gpt source", out)
 
     # combine with google results of original query
-    query_json = {}
     query_results = search(original_query, advanced=True, num_results=3, sleep_interval=10)
-    results, average_score = results_to_json(query_results, original_gpt_output)
-    query_json["source"] = original_query
-    query_json["results"] = results
-    query_json["average_score"] = str(average_score)
-    query_json["source_type"] = "original query"
-    out.append(query_json)
+    out = results_to_json(query_results, original_gpt_output, "original query", out)
+
+    # sort by score
+    out = sorted(out, key=lambda d: d['score'], reverse=True)
 
     # list to json
     out = str(json.dumps(out))
     return out
 
 
-def results_to_json(google_results, gpt_output):
+def results_to_json(google_results, gpt_output, type, master_list):
     """
+    returns list with new results added
     :param google_results: google results of query
-    :param gpt_output: original chatgpt output
-    :return: json format list of hits
+    :param gpt_output: original gpt output
+    :param type: type of source
+    :param master_list: list to append to
+    :return:
     """
-    results = []
-    average_score = 0
-    num_scores = 0
     for result in google_results:
         sleep(5)
         hit = {"url": result.url, "title": result.title, "description": result.description}
         score = similarities(gpt_output, result.description)["bert_cosine"]
-        average_score += score
-        num_scores += 1
         hit["score"] = str(score)
-        results.append(hit)
-    average_score /= num_scores
+        hit["source_type"] = type
+        master_list.append(hit)
 
-    return results, average_score
+    return master_list
 
 
 # def search_to_score(source, results):
