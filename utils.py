@@ -11,6 +11,7 @@ from time import sleep
 MODEL = SentenceTransformer('paraphrase-MiniLM-L12-v2')
 
 
+# Brynna
 # given output from ChatGPT in the form of a string, returns 3 lists of strings: sources, descriptions, and DOIs
 # descriptions is empty if there are no descriptions
 # dois contains empty strings for sources without a DOI
@@ -35,6 +36,9 @@ def process_gpt_output(output):
     return sources, descriptions, dois
 
 
+# Brynna
+# Input: source in the form of a string
+# Output: the DOI, if it has one, otherwise, an empty string
 def get_doi(source):
     match = re.search(r'doi: [\w/\.]+', source)
     if match:
@@ -44,9 +48,9 @@ def get_doi(source):
         return ''
 
 
+# Brynna and Sonja
 # Input: output from ChatGPT in the form of a string
-# Output: the results from Googling the sources as a dictionary of generators
-# The keys are the sources, and the values are the top three results for each source
+# Output: the results from Googling the sources and query as a json
 # For each result, you can access .url, .title, and .description
 def search_sources(original_gpt_output, sources_gpt_output, original_query):
     """
@@ -88,6 +92,7 @@ def search_sources(original_gpt_output, sources_gpt_output, original_query):
     return out
 
 
+# Sonja
 def results_to_json(google_results, gpt_output, source_type, master_list):
     """
     returns list with new results added
@@ -108,6 +113,7 @@ def results_to_json(google_results, gpt_output, source_type, master_list):
     return master_list
 
 
+# Sonja
 # def search_to_score(source, results):
 #     total_similarity = 0
 #     for i, result in enumerate(results):
@@ -119,6 +125,7 @@ def results_to_json(google_results, gpt_output, source_type, master_list):
 #     return total_similarity
 
 
+# Sonja
 def similarities(google_out, openai_out):
     """
     :param google_out: google output
@@ -143,6 +150,8 @@ def similarities(google_out, openai_out):
     similarities["bert_euclidean"] = euclidean_distances(embeddings)[0][1]
     return similarities
 
+
+# Brynna
 # for debugging purposes
 # if __name__ == '__main__':
 #     gpt_output = "Sure, here's a list of sources that can help you learn how to use LaTeX:\n1. The LaTeX Project - " \

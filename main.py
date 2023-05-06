@@ -12,12 +12,14 @@ openai.api_key = key
 
 app = Flask(__name__)
 
+# Annika
 # home page
 @app.route("/")
 def home():
     return render_template("home.html")
 
 
+# Annika
 # result page
 @app.route("/results", methods=["GET", "POST"])
 def results():
@@ -67,6 +69,7 @@ def results():
     return jsonify(content=content, sources=google_results)
 
 
+# Brynna
 # @app.route("/results/search", methods=["POST"])
 # def search_results():
 #     chat_output = cache.get("chat_output")

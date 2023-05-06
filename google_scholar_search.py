@@ -2,6 +2,7 @@ from serpapi import GoogleSearch
 import json
 
 
+# Sonja
 class GoogleScholarSearch:
     def __init__(self, key: str):
         """
