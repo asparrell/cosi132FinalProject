@@ -5,6 +5,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rubik:wght@300&display=swap" rel="stylesheet">
         <meta charset="UTF-8">
+        <!--CSS formatting - Annika-->
         <style>
             body {
                 background-color: #005c99;
@@ -90,6 +91,7 @@
         <title>QueryGPT</title>
     </head>
     <body>
+        <!--Render the homepage - Annika-->
         <div id="pagetext">
             <p class="text title">QueryGPT</p>
             <p id="subtitle" class="text">A simple application to access ChatGPT with references from Google to verify what ChatGPT says.</p>
@@ -108,11 +110,12 @@
                 <div id="google" class="results"></div>
             </div>
         </div>
-
+    <!--JavaScript rendering - Annika-->
     <script>
       window.onload = function () {
         document
           .getElementById("chat-form")
+            // Render upon form submission
           .addEventListener("submit", function (event) {
             // Prevent the form from submitting and refreshing the page
             event.preventDefault();
@@ -123,15 +126,18 @@
             fetch(url)
               .then((response) => response.json())
               .then((data) => {
+                  // retrieve the data from the python API results
                 let content = data.content;
                 let resultDiv = document.getElementById("result");
                 // clear previous content
                 resultDiv.innerHTML = "";
+                // render the gpt response
                 resultDiv.insertAdjacentHTML("afterbegin", `<h3 class="text">ChatGPT says:</h3><p class="text">` + content + `</p>`);
                 let sourcesDiv = document.getElementById("google");
                 let sources = JSON.parse(data.sources);
+                // construct the inner HTML for the google response
                 let str = `<h3 class="text">Sources:</h3>`;
-                  // for source in sources
+                // for source in sources
                 for (let i = 0; i < sources.length; i++) {
                     str = str + `<p class="text"><b>Source: ` + sources[i]["source_type"] + `</b></p>`;
                     str = str + `<a href="` + sources[i]["url"] + `">` + sources[i]["title"] + `</a><p>`;
@@ -141,6 +147,7 @@
                 }
                 // clear previous content
                 sourcesDiv.innerHTML = "";
+                // render the google sources
                 sourcesDiv.insertAdjacentHTML("afterbegin", str);
               })
               .catch((error) => {
