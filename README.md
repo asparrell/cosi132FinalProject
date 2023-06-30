@@ -1,5 +1,5 @@
 # COSI132 Final Project 
-#### Annika Sparrell, Sonja Kleper, Brynna Kilcline, and Bryn Zilch - Brandeis University, 2023
+#### Annika Sparrell, Sonja Kleper, and Brynna Kilcline - Brandeis University, 2023
 
 ## About
 This project is an attempt at making ChatGPT, the current technological sensation, a more reliable and verifiable source for users wanting answers to queries that are not necessarily well-answered by more traditional information retrieval tools such as Google. In the application, a user can submit a query and obtain a response from ChatGPT, version 3.5 turbo. A request is then made to the Google API to retrieve relevant sources relating to ChatGPT's answer. These sources come from two places: a direct Google query of the original input, and a request to ChatGPT for sources relating to its answer, which are then searched on Google. The sources are ranked on the righthand side of the page by their similarity score to the prose output of ChatGPT.
